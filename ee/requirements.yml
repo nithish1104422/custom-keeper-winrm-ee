@@ -1,0 +1,5 @@
+collections:
+  - name: ansible.windows
+  - name: microsoft.ad
+  - name: community.windows
+  - name: keepersecurity.keeper_secrets_manager
