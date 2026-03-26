@@ -30,7 +30,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/custom-keeper-winrm-ee
+          images: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/custom-awx-keeper-windows
           tags: |
             type=raw,value=latest
             type=sha
