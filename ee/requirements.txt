@@ -1,0 +1,3 @@
+pywinrm
+requests
+pypsrp
