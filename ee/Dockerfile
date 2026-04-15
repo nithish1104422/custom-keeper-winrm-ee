@@ -13,20 +13,24 @@ RUN dnf install -y \
 COPY ee/requirements.txt /tmp/requirements.txt
 COPY ee/requirements.yml /tmp/requirements.yml
 COPY ee/krb5.conf /etc/krb5.conf
-# Add internal CA certs for WinRM HTTPS validation
-COPY ee/ATGE-root-CA.pem /etc/pki/ca-trust/source/anchors/
-COPY ee/ATGE-intermediate-CA.pem /etc/pki/ca-trust/source/anchors/
 
-RUN update-ca-trust extract
+RUN mkdir -p /opt/atge-certs
 
-ENV REQUESTS_CA_BUNDLE=/etc/pki/tls/certs/ca-bundle.crt
-ENV SSL_CERT_FILE=/etc/pki/tls/certs/ca-bundle.crt
+COPY ee/ATGE-root-CA.pem /opt/atge-certs/
+COPY ee/ATGE-intermediate-CA.pem /opt/atge-certs/
+
+RUN cat /etc/pki/tls/certs/ca-bundle.crt \
+    /opt/atge-certs/ATGE-root-CA.pem \
+    /opt/atge-certs/ATGE-intermediate-CA.pem \
+    > /opt/atge-certs/atge-ca-bundle.pem
+
+ENV REQUESTS_CA_BUNDLE=/opt/atge-certs/atge-ca-bundle.pem
+ENV SSL_CERT_FILE=/opt/atge-certs/atge-ca-bundle.pem
 
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 RUN ansible-galaxy collection install -r /tmp/requirements.yml
 
 RUN python3 -c "import winrm, requests, pypsrp, requests_kerberos"
-
-RUN echo "EE_BUILD_MARKER=ca-v3" > /etc/ee-build-marker
+RUN echo "EE_BUILD_MARKER=ca-v4" > /etc/ee-build-marker
 
 USER 1000
