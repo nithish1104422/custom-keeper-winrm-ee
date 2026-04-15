@@ -31,6 +31,12 @@ RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 RUN ansible-galaxy collection install -r /tmp/requirements.yml
 
 RUN python3 -c "import winrm, requests, pypsrp, requests_kerberos"
-RUN echo "EE_BUILD_MARKER=ca-v4" > /etc/ee-build-marker
+
+# Force certifi to use the same merged CA bundle
+RUN CERT_PATH=$(python3 -c "import certifi; print(certifi.where())") && \
+    echo "Certifi path: $CERT_PATH" && \
+    cp /opt/atge-certs/atge-ca-bundle.pem "$CERT_PATH"
+
+RUN echo "EE_BUILD_MARKER=ca-v5" > /etc/ee-build-marker
 
 USER 1000
