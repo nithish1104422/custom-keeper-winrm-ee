@@ -19,6 +19,9 @@ COPY ee/ATGE-intermediate-CA.pem /etc/pki/ca-trust/source/anchors/
 
 RUN update-ca-trust extract
 
+ENV REQUESTS_CA_BUNDLE=/etc/pki/tls/certs/ca-bundle.crt
+ENV SSL_CERT_FILE=/etc/pki/tls/certs/ca-bundle.crt
+
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 RUN ansible-galaxy collection install -r /tmp/requirements.yml
 
