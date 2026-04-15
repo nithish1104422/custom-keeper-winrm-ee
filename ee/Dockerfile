@@ -45,6 +45,6 @@ RUN CERT_PATH=$(python3 -c "import certifi; print(certifi.where())") && \
     echo "Certifi path: $CERT_PATH" && \
     cp /opt/atge-certs/atge-ca-bundle.pem "$CERT_PATH"
 
-RUN echo "EE_BUILD_MARKER=ca-v6" > /etc/ee-build-marker
+RUN echo "EE_BUILD_MARKER=ca-v7" > /etc/ee-build-marker
 
 USER 1000
