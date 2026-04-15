@@ -27,4 +27,6 @@ RUN ansible-galaxy collection install -r /tmp/requirements.yml
 
 RUN python3 -c "import winrm, requests, pypsrp, requests_kerberos"
 
+RUN echo "EE_BUILD_MARKER=ca-v3" > /etc/ee-build-marker
+
 USER 1000
