@@ -16,23 +16,22 @@ COPY ee/krb5.conf /etc/krb5.conf
 
 RUN mkdir -p /opt/atge-certs
 
-# Copy certs to custom path
-COPY ee/ATGE-root-CA.pem /opt/atge-certs/
-COPY ee/ATGE-intermediate-CA.pem /opt/atge-certs/
-COPY ee/ATGE-NP-Issuing-CA.pem /opt/atge-certs/ 
+# Copy ONLY NP certs
+COPY ee/ATGE-NP-root-CA.pem /opt/atge-certs/
+COPY ee/ATGE-NP-issuing-CA.pem /opt/atge-certs/
 
-# Also install certs into system trust store
-COPY ee/ATGE-root-CA.pem /etc/pki/ca-trust/source/anchors/
-COPY ee/ATGE-intermediate-CA.pem /etc/pki/ca-trust/source/anchors/
-COPY ee/ATGE-NP-Issuing-CA.pem /etc/pki/ca-trust/source/anchors/
+# Install ONLY NP certs into system trust
+COPY ee/ATGE-NP-root-CA.pem /etc/pki/ca-trust/source/anchors/
+COPY ee/ATGE-NP-issuing-CA.pem /etc/pki/ca-trust/source/anchors/
 
+# Update system trust
 RUN update-ca-trust extract
 
-# Create merged custom CA bundle
+# Create merged CA bundle in correct order:
+# system bundle + NP issuing + NP root
 RUN cat /etc/pki/tls/certs/ca-bundle.crt \
-    /opt/atge-certs/ATGE-root-CA.pem \
-    /opt/atge-certs/ATGE-intermediate-CA.pem \
-    /opt/atge-certs/ATGE-NP-Issuing-CA.pem \
+    /opt/atge-certs/ATGE-NP-issuing-CA.pem \
+    /opt/atge-certs/ATGE-NP-root-CA.pem \
     > /opt/atge-certs/atge-ca-bundle.pem
 
 ENV REQUESTS_CA_BUNDLE=/opt/atge-certs/atge-ca-bundle.pem
@@ -48,6 +47,6 @@ RUN CERT_PATH=$(python3 -c "import certifi; print(certifi.where())") && \
     echo "Certifi path: $CERT_PATH" && \
     cp /opt/atge-certs/atge-ca-bundle.pem "$CERT_PATH"
 
-RUN echo "EE_BUILD_MARKER=ca-v8" > /etc/ee-build-marker
+RUN echo "EE_BUILD_MARKER=ca-v9-np-only" > /etc/ee-build-marker
 
 USER 1000
